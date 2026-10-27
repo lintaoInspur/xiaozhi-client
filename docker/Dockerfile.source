@@ -7,7 +7,24 @@
 #   docker build -f docker/Dockerfile.source -t xiaozhi-client:source .
 # 或配合 docker-compose.source.yml：
 #   docker compose -f docker/docker-compose.source.yml up -d --build
-FROM node:22
+# BASE_IMAGE：默认 node:22；在受限/国内网络可传
+#   --build-arg BASE_IMAGE=docker.m.daocloud.io/library/node:22
+# 走 Docker Hub 镜像代理（daocloud 等）。
+ARG BASE_IMAGE=node:22
+FROM ${BASE_IMAGE}
+
+# NPM_REGISTRY：默认官方源；国内可传
+#   --build-arg NPM_REGISTRY=https://registry.npmmirror.com/
+ARG NPM_REGISTRY=https://registry.npmjs.org/
+ENV npm_config_registry=${NPM_REGISTRY}
+
+# PNPM_LINKER：默认 hoisted（扁平 node_modules）。
+# 原因：本项目用 pnpm workspace，src/web 的 devDependency（如 rollup-plugin-visualizer）
+# 在默认隔离布局下只软链到 src/web/node_modules，而 vite 把临时配置写到
+# /app/node_modules/.vite-temp，从该路径解析不到子包依赖导致 build:web 失败。
+# 用 hoisted 链接器把所有依赖扁平化到 /app/node_modules 即可解决（仅影响容器内布局）。
+ARG PNPM_LINKER=hoisted
+ENV npm_config_node_linker=${PNPM_LINKER}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
