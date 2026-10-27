@@ -1,0 +1,45 @@
+# 从源码构建 xiaozhi-client
+# 与官方 docker/Dockerfile 的区别：官方镜像从 npm 拉「已发布」的包，
+# 不会包含你 fork 里的本地改动（如音乐桥接）。本 Dockerfile 直接基于仓库源码
+# 执行 pnpm build，因此会包含你 fork 的全部代码。
+#
+# 用法（在 armbian / 任意支持 Docker 的机器上，仓库根目录执行）：
+#   docker build -f docker/Dockerfile.source -t xiaozhi-client:source .
+# 或配合 docker-compose.source.yml：
+#   docker compose -f docker/docker-compose.source.yml up -d --build
+FROM node:22
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# 系统依赖：ffmpeg 用于音频处理，python3 用于模板初始化，dumb-init 作为 PID 1
+RUN apt-get update && apt-get install -y \
+    dumb-init \
+    git \
+    ffmpeg \
+    python3 \
+    python3-pip \
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g pnpm
+
+WORKDIR /app
+
+# 先拷贝依赖清单并安装，利用 Docker 层缓存（改源码不会让这一步失效）
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
+
+# 再拷贝全部源码并构建（server + cli + web）
+COPY . .
+RUN pnpm build
+
+ENV NODE_ENV=production
+ENV XIAOZHI_WORKSPACE=/workspaces
+ENV XIAOZHI_CONTAINER=true
+ENV XIAOZHI_CONFIG_DIR=/workspaces
+
+EXPOSE 9999 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD node /app/dist/cli/index.js --version > /dev/null 2>&1 || exit 1
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "/app/dist/cli/index.js", "start"]

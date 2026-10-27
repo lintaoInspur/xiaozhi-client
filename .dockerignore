@@ -1,0 +1,28 @@
+# 依赖与构建产物（镜像内会重新安装 / 构建，无需打入上下文）
+node_modules
+web/node_modules
+dist
+web/dist
+
+# Git / CI
+.git
+.github
+
+# 测试与覆盖率
+coverage
+.nyc_output
+test-results
+tests
+
+# 日志 / 临时
+logs
+*.log
+xiaozhi.log
+tmp
+docker-test
+
+# 文档（运行镜像不需要）
+docs
+
+# 系统文件
+.DS_Store

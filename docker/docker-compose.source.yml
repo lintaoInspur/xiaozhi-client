@@ -1,0 +1,32 @@
+# 从源码构建并运行 xiaozhi-client（包含 fork 的本地改动）
+# 在仓库根目录执行：
+#   docker compose -f docker/docker-compose.source.yml up -d --build
+services:
+  xiaozhi-client:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.source
+    image: xiaozhi-client:source
+    container_name: xiaozhi-client
+    restart: unless-stopped
+
+    ports:
+      - "9999:9999"    # Web UI 端口
+      - "3000:3000"    # 备用端口
+
+    environment:
+      - NODE_ENV=production
+      - XIAOZHI_WORKSPACE=/workspaces
+      - XIAOZHI_CONTAINER=true
+      - XIAOZHI_CONFIG_DIR=/workspaces
+
+    # 配置 / 日志持久化到宿主机 ~/xiaozhi-client
+    volumes:
+      - ~/xiaozhi-client:/workspaces
+
+    healthcheck:
+      test: ["CMD", "node", "/app/dist/cli/index.js", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
