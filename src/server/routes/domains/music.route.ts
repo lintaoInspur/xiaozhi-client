@@ -4,7 +4,10 @@
  */
 
 import type { Context } from "hono";
-import type { HandlerDependencies } from "../../routes/types.js";
+import type {
+  HandlerDependencies,
+  RouteDefinition,
+} from "../../routes/types.js";
 
 const createMusicHandler = (
   method: (
@@ -22,7 +25,7 @@ const createMusicHandler = (
   };
 };
 
-export const musicRoutes = [
+export const musicRoutes: RouteDefinition[] = [
   {
     method: "POST",
     path: "/api/music/play",

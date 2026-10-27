@@ -6,8 +6,8 @@
  */
 
 import type { ESP32DeviceManager } from "@/esp32";
-import type { MusicService } from "@/esp32/services/music.service.js";
 import type { Context } from "hono";
+import type { MusicService } from "../../esp32/services/music.service.js";
 import type { AppContext } from "../types/hono.context.js";
 import { BaseHandler } from "./base.handler.js";
 
