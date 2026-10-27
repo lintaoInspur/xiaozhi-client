@@ -43,3 +43,4 @@ export * from "./update.handler.js";
 export * from "./version.handler.js";
 export { TTSApiHandler } from "./tts.handler.js";
 export { ESP32Handler } from "./esp32.handler.js";
+export { MusicHandler } from "./music.handler.js";

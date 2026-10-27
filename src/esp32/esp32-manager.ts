@@ -607,6 +607,14 @@ export class ESP32DeviceManager {
   }
 
   /**
+   * 获取所有已连接设备的 ID 列表
+   * 用于音乐等"取首个已连设备"的场景
+   */
+  getConnectedDeviceIds(): string[] {
+    return Array.from(this.connections.keys());
+  }
+
+  /**
    * 获取设备信息
    * @param deviceId - 设备 ID
    * @returns 设备信息，如果不存在则返回 null

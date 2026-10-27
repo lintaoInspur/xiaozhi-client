@@ -41,6 +41,7 @@ import {
   ConfigApiHandler,
   CozeHandler,
   ESP32Handler,
+  MusicHandler,
   MCPHandler,
   MCPRouteHandler,
   MCPToolHandler,
@@ -52,6 +53,8 @@ import {
   UpdateApiHandler,
   VersionApiHandler,
 } from "./handlers/index.js";
+import { MusicService } from "../esp32/services/music.service.js";
+import { musicRoutes } from "./routes/domains/music.route.js";
 import { MCPServiceManager } from "./lib/mcp";
 import type { EnhancedToolInfo } from "./lib/mcp/types.js";
 import { ensureToolJSONSchema } from "./lib/mcp/types.js";
@@ -149,6 +152,8 @@ export class WebServer {
   private cozeHandler: CozeHandler;
   private ttsApiHandler: TTSApiHandler;
   private esp32Handler: ESP32Handler;
+  private musicService: MusicService;
+  private musicHandler: MusicHandler;
 
   // 路由系统
   private routeManager?: RouteManager;
@@ -204,6 +209,14 @@ export class WebServer {
     this.cozeHandler = new CozeHandler();
     this.ttsApiHandler = new TTSApiHandler();
     this.esp32Handler = new ESP32Handler(this.esp32Manager);
+
+    // 路径 B：音乐中继服务（music-service 解码 Opus → 经本桥接下发到设备）
+    this.musicService = new MusicService({
+      baseUrl: process.env.MUSIC_SERVICE_URL ?? "http://music-service:8800",
+      getConnection: (id) => this.esp32Manager.getConnection(id),
+      logger: this.logger,
+    });
+    this.musicHandler = new MusicHandler(this.esp32Manager, this.musicService);
 
     // MCPServerApiHandler 将在 start() 方法中初始化，因为它需要 mcpServiceManager
 
@@ -580,6 +593,7 @@ export class WebServer {
       cozeHandler: this.cozeHandler,
       ttsApiHandler: this.ttsApiHandler,
       esp32Handler: this.esp32Handler,
+      musicHandler: this.musicHandler,
       // endpointHandler 通过中间件动态注入，不在此初始化
     };
   }
@@ -617,6 +631,7 @@ export class WebServer {
         misc: miscRoutes,
         tts: ttsRoutes,
         esp32: esp32Routes,
+        music: musicRoutes,
         static: staticRoutes, // 放在最后作为回退
       });
 

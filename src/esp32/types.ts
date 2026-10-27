@@ -208,7 +208,8 @@ export type ESP32WSMessageType =
   | "custom"
   | "abort"
   | "error"
-  | "asr_end"; // ASR 识别结束，VAD 检测到用户说话结束
+  | "asr_end" // ASR 识别结束，VAD 检测到用户说话结束
+  | "music"; // 音乐播放控制（桥接层 → 固件，application.cc:668）
 
 /**
  * WebSocket 消息基础接口
@@ -417,6 +418,20 @@ export interface ESP32ASREndMessage extends ESP32WSMessageBase {
 }
 
 /**
+ * 音乐播放控制消息
+ * 由桥接层（MusicService）发送，通知固件进入/退出音乐播放状态。
+ * 固件 application.cc:668 收到 state="start" 进入 Speaking 并解码下行 Opus，
+ * state="stop" 调用 StopMusic()。
+ */
+export interface ESP32MusicMessage extends ESP32WSMessageBase {
+  type: "music";
+  /** 音乐状态：start 开始，stop 停止 */
+  state: "start" | "stop";
+  /** 歌曲名（可选，用于设备显示） */
+  name?: string;
+}
+
+/**
  * WebSocket 消息联合类型
  */
 export type ESP32WSMessage =
@@ -433,7 +448,8 @@ export type ESP32WSMessage =
   | ESP32AbortMessage
   | ESP32CustomMessage
   | ESP32ErrorMessage
-  | ESP32ASREndMessage;
+  | ESP32ASREndMessage
+  | ESP32MusicMessage;
 
 /**
  * WebSocket 连接状态
