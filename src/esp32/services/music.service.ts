@@ -60,7 +60,12 @@ export class MusicService {
     this.active.set(deviceId, { abort: () => controller.abort() });
 
     // 1) 通知固件进入音乐状态（application.cc:668）
-    await connection.send({ type: "music", state: "start", name, session_id: connection.getSessionId() });
+    await connection.send({
+      type: "music",
+      state: "start",
+      name,
+      session_id: connection.getSessionId(),
+    });
 
     // 2) 拉取 BP2 帧流（每帧 = 16 字节头 + Opus 包）
     const streamUrl = `${this.baseUrl}/opus_stream?url=${encodeURIComponent(url)}`;
@@ -97,7 +102,8 @@ export class MusicService {
         while (buf.length >= HDR) {
           // payload_size 位于字节 12–15（大端 uint32）
           const payloadSize =
-            ((buf[12] << 24) | (buf[13] << 16) | (buf[14] << 8) | buf[15]) >>> 0;
+            ((buf[12] << 24) | (buf[13] << 16) | (buf[14] << 8) | buf[15]) >>>
+            0;
           const total = HDR + payloadSize;
           if (buf.length < total) break; // 帧未收全，等下一 chunk
           const payload = buf.subarray(HDR, total);
@@ -120,9 +126,7 @@ export class MusicService {
     this.active.get(deviceId)?.abort();
     this.active.delete(deviceId);
     const connection = this.getConnection?.(deviceId);
-    connection
-      ?.send({ type: "music", state: "stop" })
-      .catch(() => {});
+    connection?.send({ type: "music", state: "stop" }).catch(() => {});
   }
 
   private async end(connection: IDeviceConnection): Promise<void> {

@@ -35,17 +35,18 @@ import {
   ESP32DeviceManager,
   type IESP32ConfigProvider,
 } from "../esp32/index.js";
+import { MusicService } from "../esp32/services/music.service.js";
 import type { Logger } from "./Logger.js";
 import { logger } from "./Logger.js";
 import {
   ConfigApiHandler,
   CozeHandler,
   ESP32Handler,
-  MusicHandler,
   MCPHandler,
   MCPRouteHandler,
   MCPToolHandler,
   MCPToolLogHandler,
+  MusicHandler,
   ServiceApiHandler,
   StaticFileHandler,
   StatusApiHandler,
@@ -53,8 +54,6 @@ import {
   UpdateApiHandler,
   VersionApiHandler,
 } from "./handlers/index.js";
-import { MusicService } from "../esp32/services/music.service.js";
-import { musicRoutes } from "./routes/domains/music.route.js";
 import { MCPServiceManager } from "./lib/mcp";
 import type { EnhancedToolInfo } from "./lib/mcp/types.js";
 import { ensureToolJSONSchema } from "./lib/mcp/types.js";
@@ -68,6 +67,7 @@ import {
   notFoundHandlerMiddleware,
   responseEnhancerMiddleware,
 } from "./middlewares/index.js";
+import { musicRoutes } from "./routes/domains/music.route.js";
 import type { EventBus, EventBusEvents } from "./services/index.js";
 import {
   StatusService,
