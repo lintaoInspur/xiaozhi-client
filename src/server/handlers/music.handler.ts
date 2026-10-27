@@ -34,11 +34,14 @@ export class MusicHandler extends BaseHandler {
       url?: string;
       name?: string;
       deviceId?: string;
-    }>(c, "请求体格式错误").catch(() => ({}) as {
-      url?: string;
-      name?: string;
-      deviceId?: string;
-    });
+    }>(c, "请求体格式错误").catch(
+      () =>
+        ({}) as {
+          url?: string;
+          name?: string;
+          deviceId?: string;
+        }
+    );
     const url = body?.url;
     const name = body?.name ?? "";
     if (!url) {
