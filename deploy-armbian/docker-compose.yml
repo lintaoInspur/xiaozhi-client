@@ -1,0 +1,57 @@
+# 小智全栈一键编排：语音对话 + 联网搜索 + 本地音乐（Armbian / arm64）
+#
+# 三服务均在共享网络 xiaozhi 内，靠容器名互访（容器内 localhost 指向自己，切勿写 localhost）：
+#   - xiaozhi-client  ->  http://searxng:8080          （联网搜索后端）
+#   - xiaozhi-client  ->  http://music-service:8800     （本地音乐转码后端）
+#   - 音乐语音触发 MCP(python) 跑在 client 容器内，POST 到 http://xiaozhi-client:3000/api/music
+#
+# 设备 WebSocket 指向本机 :3000；Web UI 在 :9999。
+
+networks:
+  xiaozhi:
+    driver: bridge
+
+services:
+  xiaozhi-client:
+    image: xiaozhi-client:arm64            # 我们的 fork 镜像（含 search-mcp + 音乐注入 + python3）
+    container_name: xiaozhi-client
+    restart: unless-stopped
+    ports:
+      - "9999:9999"                        # Web UI
+      - "3000:3000"                        # 设备 WebSocket / 后端 REST（含 /api/music）
+    environment:
+      - NODE_ENV=production
+      - XIAOZHI_WORKSPACE=/workspaces
+      - XIAOZHI_CONTAINER=true
+      - XIAOZHI_CONFIG_DIR=/workspaces
+      - SEARXNG_URL=http://searxng:8080
+      - MUSIC_SERVICE_URL=http://music-service:8800
+    volumes:
+      - ./data/xiaozhi-client:/workspaces           # 配置 / 日志持久化
+      - ./music:/music:ro                           # 给音乐 MCP 做文件名匹配（只读）
+      - ./music-service/mcp:/opt/music-mcp:ro        # 音乐语音触发 MCP 脚本
+    networks: [xiaozhi]
+    depends_on:
+      - music-service
+      - searxng
+
+  music-service:
+    build: ./music-service
+    image: xiaozhi-music-service
+    container_name: music-service
+    restart: unless-stopped
+    expose:
+      - "8800"                               # 仅在内部网络对 client 暴露
+    volumes:
+      - ./music:/music:ro                     # 本地曲库（把你的歌曲放进宿主机 ./music）
+    networks: [xiaozhi]
+
+  searxng:
+    image: docker.m.daocloud.io/searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    ports:
+      - "8080:8080"                          # 仅供 client 内部访问；如需只内网可改 expose
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    networks: [xiaozhi]

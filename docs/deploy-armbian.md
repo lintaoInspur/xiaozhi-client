@@ -9,6 +9,8 @@
 >
 > 若开发板**无外网**、或想直接用预构建的 arm64 镜像离线部署，见 `mcps/search-mcp/SOP.md` 第 7 节（在 x86_64 交叉构建 + `docker save` 导出 tar，再到 Armbian `docker load` + `docker run` 启动）。
 
+> **全流程一键部署包（语音 + 搜索 + 音乐）**：仓库 `deploy-armbian/` 目录，`setup.sh` + `docker-compose.yml` 一键拉起三件套，含按前后顺序的最终安装与部署说明（`deploy-armbian/README.md`）。
+
 ---
 
 ## 方式一：Docker 从源码构建（推荐）

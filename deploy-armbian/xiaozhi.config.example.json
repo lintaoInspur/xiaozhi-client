@@ -1,0 +1,27 @@
+{
+  "llm": {
+    "provider": "openai",
+    "baseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "apiKey": "sk-你的DashScopeKey",
+    "model": "qwen-plus"
+  },
+  "mcpServers": {
+    "search": {
+      "command": "node",
+      "args": ["/app/mcps/search-mcp/run.js"],
+      "env": {
+        "SEARCH_BACKEND": "searxng",
+        "SEARXNG_URL": "http://searxng:8080"
+      }
+    },
+    "xiaozhi-music": {
+      "command": "python3",
+      "args": ["/opt/music-mcp/xiaozhi_music_mcp.py"],
+      "env": {
+        "XIAOZHI_BRIDGE": "http://xiaozhi-client:3000",
+        "MUSIC_DIR": "/music"
+      },
+      "transport": "stdio"
+    }
+  }
+}
