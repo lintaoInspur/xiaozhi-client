@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/search-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智联网搜索 MCP 服务，提供免费的网页搜索工具（支持 DuckDuckGo / SearXNG / Tavily / Brave）",
+  "bin": {
+    "xiaozhi-search-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}

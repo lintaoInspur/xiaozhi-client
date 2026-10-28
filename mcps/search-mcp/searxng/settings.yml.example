@@ -1,0 +1,44 @@
+# SearXNG 配置模板（复制后请把 secret_key 替换为随机值）
+# 生成随机密钥： openssl rand -hex 16
+#
+# 适用场景：search-mcp 的后端设为 searxng（SEARCH_BACKEND=searxng, SEARXNG_URL=http://<host>:8080）
+#
+# 说明：本机（受限网络）实测仅 baidu/sogou/bing/yandex/ecosia 可达，
+#       Google/DuckDuckGo/Wikipedia 等均不通，故在 disabled_engines 中禁用其余默认引擎，
+#       避免每次搜索卡在超时。如某引擎实际返回空，可继续加进 disabled_engines。
+
+use_default_settings: true
+server:
+  secret_key: "__GENERATE_WITH_openssl_rand_hex_16__"
+  bind_address: "0.0.0.0"
+  port: 8080
+  limiter: false
+  method: "GET POST"
+search:
+  formats:
+    - json
+    - html
+disabled_engines:
+  - google
+  - duckduckgo
+  - duckduckgo-html
+  - wikidata
+  - wikipedia
+  - yahoo
+  - mojeek
+  - startpage
+  - bravesearch
+  - qwant
+  - naver
+  - seznam
+  - "360"
+  - dogpile
+  - gigablast
+  - wiby
+  - marginalia
+  - etools
+  - yep
+  - kagi
+  - murena
+  - euron
+  - freecx
