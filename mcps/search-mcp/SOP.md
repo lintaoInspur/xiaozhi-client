@@ -149,7 +149,9 @@ Armbian 场景注意点：
 - 若 SearXNG 也跑在同一块开发板上（建议同机，延迟低），`SEARXNG_URL` 用 `http://localhost:8080`；若在别的机器，用其局域网 IP，不可用 `localhost`。
 - 配置与日志在宿主机 `~/xiaozhi-client`（compose 挂载的 workspace）；更新代码后 `git pull && docker compose -f docker/docker-compose.source.yml up -d --build` 重新编译即可。
 
-## 7. 在 x86_64 上交叉构建 arm64 镜像（给 Armbian 用，可选）
+## 7. 在 x86_64 上交叉构建 arm64 镜像 + 离线部署到 Armbian
+
+### 7.1 在 x86_64 上产出 arm64 镜像（含 search-mcp）
 
 若想在**这台 x86_64 机器**上提前产出供 Armbian 使用的 arm64 镜像（便于离线拷贝），用 `docker build --platform linux/arm64`（依赖本机已注册的 `qemu-aarch64` 模拟）：
 
@@ -158,10 +160,35 @@ cd xiaozhi-client
 docker build --platform linux/arm64 -f docker/Dockerfile.source -t xiaozhi-client:arm64 \
   --build-arg BASE_IMAGE=docker.m.daocloud.io/library/node:22 \
   --build-arg NPM_REGISTRY=https://registry.npmmirror.com/ .
-# 导出成 tar，方便拷到 Armbian：
+# 导出成 tar，方便拷到 Armbian（产物约 2.7G）：
 docker save -o xiaozhi-client-arm64-new.tar xiaozhi-client:arm64
 ```
 
-在 Armbian 上：`docker load -i xiaozhi-client-arm64-new.tar` 即可使用。
+> 构建期走 QEMU 模拟，比在 Armbian 本机原生构建慢。若开发板就在手边且能联网，优先用第 6 步的本机源码构建，无需传输 2.7G 的 tar。
 
-> 构建期走 QEMU 模拟，比在 Armbian 本机原生构建慢。若开发板就在手边，优先用第 6 步的本机源码构建。
+### 7.2 离线把 tar 部署到 Armbian（无外网 / 内网隔离场景）
+
+这个 tar 是 **arm64 镜像**，只能在 Armbian（aarch64）上原生跑，不能在 x86_64 上原生跑（x86_64 上只能靠 QEMU 模拟，不推荐当日常用）。
+
+1. 把 tar 从构建机传到开发板：
+   ```bash
+   scp /path/to/xiaozhi-client-arm64-new.tar <用户>@<开发板IP>:/tmp/
+   ```
+2. 在 Armbian 上导入镜像（导入后本地出现 `xiaozhi-client:arm64`，arm64 原生，直接跑，无需模拟）：
+   ```bash
+   docker load -i /tmp/xiaozhi-client-arm64-new.tar
+   ```
+3. 在 Armbian 上启动容器（Web UI 在 `:9999`，备用 `:3000`）：
+   ```bash
+   docker run -d --name xiaozhi-client -p 9999:9999 -p 3000:3000 \
+     -e NODE_ENV=production -e XIAOZHI_WORKSPACE=/workspaces \
+     -e XIAOZHI_CONTAINER=true -e XIAOZHI_CONFIG_DIR=/workspaces \
+     -v ~/xiaozhi-workspace:/workspaces --restart unless-stopped \
+     xiaozhi-client:arm64
+   ```
+4. 浏览器开 `http://<开发板IP>:9999` 即可使用；配置与日志在宿主机 `~/xiaozhi-workspace`。
+
+注意：
+- 该镜像**已包含 search-mcp**（从当前源码编的），无需再挂载 `mcps/search-mcp` 目录；按 §4 把 `search` 加进 `mcpServers`，并准备好搜索后端（§2/§3）。
+- 若 SearXNG 也在同一开发板上（建议同机，延迟低），`SEARXNG_URL` 用 `http://localhost:8080`；在别的机器用其局域网 IP，不可用 `localhost`。
+- tar 是二进制大文件，**不要提交进 git**，只用于传输。

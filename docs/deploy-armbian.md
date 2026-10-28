@@ -6,6 +6,8 @@
 > 因此要用你自己的代码，必须**从源码构建**——本仓库已提供 `docker/Dockerfile.source` 与 `docker/docker-compose.source.yml` 来做这件事。
 
 > 说明：本仓库已内置免费联网搜索 MCP（`mcps/search-mcp`，详见 `mcps/search-mcp/SOP.md`）。从源码构建的镜像会包含它；按 SOP 把它加进 client 的 `mcpServers` 即可获得零成本联网搜索，用于替换之前付费的 MCP 服务。
+>
+> 若开发板**无外网**、或想直接用预构建的 arm64 镜像离线部署，见 `mcps/search-mcp/SOP.md` 第 7 节（在 x86_64 交叉构建 + `docker save` 导出 tar，再到 Armbian `docker load` + `docker run` 启动）。
 
 ---
 
