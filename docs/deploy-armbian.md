@@ -5,6 +5,8 @@
 > ⚠️ 重要前提：官方 `docker/Dockerfile` 是通过 `npm install -g xiaozhi-client@<版本>` 从 **npm 拉「已发布」的包**来构建镜像的，它**不会包含你 fork 里的本地改动**（比如音乐桥接功能）。
 > 因此要用你自己的代码，必须**从源码构建**——本仓库已提供 `docker/Dockerfile.source` 与 `docker/docker-compose.source.yml` 来做这件事。
 
+> 说明：本仓库已内置免费联网搜索 MCP（`mcps/search-mcp`，详见 `mcps/search-mcp/SOP.md`）。从源码构建的镜像会包含它；按 SOP 把它加进 client 的 `mcpServers` 即可获得零成本联网搜索，用于替换之前付费的 MCP 服务。
+
 ---
 
 ## 方式一：Docker 从源码构建（推荐）

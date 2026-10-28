@@ -128,3 +128,40 @@ curl -s "http://localhost:8080/search?q=%E4%BB%8A%E6%99%BA&format=json" \
 | `brave` | `SEARCH_BACKEND=brave` + `BRAVE_API_KEY` | 是 | 有免费额度 |
 
 工具签名：`web_search(query: string, limit?: number=5, backend?: string)`
+
+---
+
+## 6. 在 Armbian（arm64）上部署 client
+
+**架构提醒**：镜像是架构相关的——x86_64 只能用 amd64 镜像，Armbian（aarch64）必须用 **arm64** 镜像，**不能把 amd64 镜像直接丢上去**（指令集不匹配，原生跑不了）。
+
+最推荐：在 **Armbian 本机**从源码构建（arm64 原生、无需模拟，且自动包含本 fork 全部改动，含 search-mcp）：
+
+```bash
+git clone https://github.com/lintaoInspur/xiaozhi-client.git && cd xiaozhi-client
+docker compose -f docker/docker-compose.source.yml up -d --build
+```
+
+完整说明见仓库 `docs/deploy-armbian.md`。构建完容器以 `node dist/cli/index.js start` 启动，Web UI 在 `http://<开发板IP>:9999`。
+
+Armbian 场景注意点：
+- 源码构建已含 search-mcp，**无需额外挂载** `mcps/search-mcp`。
+- 若 SearXNG 也跑在同一块开发板上（建议同机，延迟低），`SEARXNG_URL` 用 `http://localhost:8080`；若在别的机器，用其局域网 IP，不可用 `localhost`。
+- 配置与日志在宿主机 `~/xiaozhi-client`（compose 挂载的 workspace）；更新代码后 `git pull && docker compose -f docker/docker-compose.source.yml up -d --build` 重新编译即可。
+
+## 7. 在 x86_64 上交叉构建 arm64 镜像（给 Armbian 用，可选）
+
+若想在**这台 x86_64 机器**上提前产出供 Armbian 使用的 arm64 镜像（便于离线拷贝），用 `docker build --platform linux/arm64`（依赖本机已注册的 `qemu-aarch64` 模拟）：
+
+```bash
+cd xiaozhi-client
+docker build --platform linux/arm64 -f docker/Dockerfile.source -t xiaozhi-client:arm64 \
+  --build-arg BASE_IMAGE=docker.m.daocloud.io/library/node:22 \
+  --build-arg NPM_REGISTRY=https://registry.npmmirror.com/ .
+# 导出成 tar，方便拷到 Armbian：
+docker save -o xiaozhi-client-arm64-new.tar xiaozhi-client:arm64
+```
+
+在 Armbian 上：`docker load -i xiaozhi-client-arm64-new.tar` 即可使用。
+
+> 构建期走 QEMU 模拟，比在 Armbian 本机原生构建慢。若开发板就在手边，优先用第 6 步的本机源码构建。
