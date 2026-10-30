@@ -1,8 +1,9 @@
 # 依赖与构建产物（镜像内会重新安装 / 构建，无需打入上下文）
-node_modules
-web/node_modules
-dist
-web/dist
+# 注意：本项目是 pnpm workspace，前端依赖在 src/web/node_modules，
+# 必须用 **/ 递归排除，否则 COPY . . 会把宿主 node_modules 带进镜像，
+# 与 RUN pnpm install 生成的扁平 node_modules 冲突（cannot replace directory with file）。
+**/node_modules
+**/dist
 
 # Git / CI
 .git
