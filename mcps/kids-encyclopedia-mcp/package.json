@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/kids-encyclopedia-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智少儿科普问答 MCP 服务，提供离线、适龄、安全的『十万个为什么』知识库",
+  "bin": {
+    "xiaozhi-kids-encyclopedia-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}
