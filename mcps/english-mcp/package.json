@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/english-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智少儿英语启蒙单词卡 MCP 服务，离线主题词卡（颜色/动物/数字/水果等），含音标与示例",
+  "bin": {
+    "xiaozhi-english-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}

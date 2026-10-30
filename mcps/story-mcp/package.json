@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/story-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智少儿故事/绘本机 MCP 服务，离线故事库，按主题/角色讲适龄小故事，支持“再来一个”",
+  "bin": {
+    "xiaozhi-story-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}

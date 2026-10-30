@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/kids-math-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智少儿数学启蒙小老师 MCP 服务，按年龄分级出加减（及简单乘除）题，判答案并鼓励",
+  "bin": {
+    "xiaozhi-kids-math-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}

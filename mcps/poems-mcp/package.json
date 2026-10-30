@@ -1,0 +1,24 @@
+{
+  "name": "@xiaozhi-client/poems-mcp",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "小智少儿古诗/儿歌/绕口令 MCP 服务，离线内容库，按类型与年龄分级检索",
+  "bin": {
+    "xiaozhi-poems-mcp": "run.js"
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "type-check": "tsc --noEmit",
+    "start": "node run.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.5.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.2"
+  }
+}
