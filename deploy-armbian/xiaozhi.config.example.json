@@ -22,6 +22,30 @@
         "MUSIC_DIR": "/music"
       },
       "transport": "stdio"
+    },
+    "kids-encyclopedia": {
+      "command": "node",
+      "args": ["/app/mcps/kids-encyclopedia-mcp/run.js"]
+    },
+    "story": {
+      "command": "node",
+      "args": ["/app/mcps/story-mcp/run.js"]
+    },
+    "riddle": {
+      "command": "node",
+      "args": ["/app/mcps/riddle-mcp/run.js"]
+    },
+    "poems": {
+      "command": "node",
+      "args": ["/app/mcps/poems-mcp/run.js"]
+    },
+    "kids-math": {
+      "command": "node",
+      "args": ["/app/mcps/kids-math-mcp/run.js"]
+    },
+    "english": {
+      "command": "node",
+      "args": ["/app/mcps/english-mcp/run.js"]
     }
   }
 }
