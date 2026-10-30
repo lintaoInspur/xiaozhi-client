@@ -25,6 +25,7 @@ import { serve } from "@hono/node-server";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import type { Hono } from "hono";
 import { WebSocketServer } from "ws";
+import { startXiaozhiMdnsAdvertiser, stopXiaozhiMdnsAdvertiser } from "./mdns-advertiser.js";
 import type WebSocket from "ws";
 import { normalizeServiceConfig } from "../config/index.js";
 import { configManager } from "../config/index.js";
@@ -944,9 +945,15 @@ export class WebServer {
       `Web server listening on http://${HTTP_SERVER_CONFIG.DEFAULT_BIND_ADDRESS}:${this.port}`
     );
     this.logger.info(`Local access: http://localhost:${this.port}`);
+
+    // 局域网零配置：广播 mDNS 服务，使设备自动发现本服务端（无需手动填 IP）
+    startXiaozhiMdnsAdvertiser({ port: this.port });
   }
 
   public stop(): Promise<void> {
+    // 停止 mDNS 广播
+    stopXiaozhiMdnsAdvertiser();
+
     return new Promise((resolve) => {
       let resolved = false;
 

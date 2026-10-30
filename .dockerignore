@@ -27,3 +27,6 @@ docs
 
 # 系统文件
 .DS_Store
+
+# 本地构建产物（如 xiaozhi-client-arm64-new.tar），勿打入镜像上下文
+*.tar

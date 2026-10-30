@@ -42,7 +42,9 @@ WORKDIR /app
 
 # 先拷贝依赖清单并安装，利用 Docker 层缓存（改源码不会让这一步失效）
 COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile
+# 注意：这里不使用 --frozen-lockfile。因为宿主环境无法运行 pnpm（部分部署机 node 不可用），
+# 锁文件可能落后于 package.json（如新增 bonjour）。容器内重新解析依赖，保证改动生效。
+RUN pnpm install
 
 # 再拷贝全部源码并构建（server + cli + web）
 COPY . .
