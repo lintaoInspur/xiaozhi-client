@@ -10,7 +10,7 @@
  * 注意：mDNS 依赖局域网组播，容器部署时必须使用 `--network host`，
  * 否则设备无法收到广播。
  */
-import bonjour from "bonjour";
+import bonjour from "bonjour-hap";
 
 let bonjourInstance: ReturnType<typeof bonjour> | null = null;
 
