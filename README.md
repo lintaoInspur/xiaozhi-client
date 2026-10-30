@@ -117,6 +117,63 @@ docker-compose logs -f
 docker-compose down
 ```
 
+## 少儿离线内容 MCP 包（内置）
+
+针对 3-10 岁儿童陪伴设备（如太空人故事机），仓库内置了一套**完全离线、适龄、安全**的少儿内容 MCP 包。断网也能用，内容经过筛选，绝不胡说，非常适合给孩子用。
+
+> 目录都在 `mcps/` 下，每个包自带 `README.md` 与 `src/data.ts`（内容中心，直接往里加素材即可，无需改逻辑）。
+
+| 包 | 工具 | 能做什么 |
+|---|---|---|
+| [`kids-encyclopedia-mcp`](mcps/kids-encyclopedia-mcp) | `kids_encyclopedia` | 离线“十万个为什么”，关键词匹配返回口语化答案 |
+| [`story-mcp`](mcps/story-mcp) | `tell_story` | 按主题/角色/年龄讲适龄小故事，传 `exclude` 实现“再来一个” |
+| [`riddle-mcp`](mcps/riddle-mcp) | `get_riddle` + `check_answer` | 猜谜语/脑筋急转弯：出题→孩子答→判对错→给提示（多轮） |
+| [`poems-mcp`](mcps/poems-mcp) | `get_poem` | 古诗/儿歌/绕口令，按类型与年龄分级检索 |
+| [`kids-math-mcp`](mcps/kids-math-mcp) | `math_quiz` + `check_math` | 按年龄分级出加减（大童含乘法）题并批改 |
+| [`english-mcp`](mcps/english-mcp) | `english_card` | 主题单词卡（颜色/动物/数字/水果/身体/食物），含音标 |
+
+### 构建
+
+需要在能联网的机器上安装依赖并构建（SDK 需联网获取）：
+
+```bash
+pnpm install
+pnpm --filter @xiaozhi-client/{kids-encyclopedia,story,riddle,poems,kids-math,english}-mcp build
+```
+
+### 接入 xiaozhi-client
+
+把构建好的 6 个包加进 `xiaozhi.config.json` 的 `mcpServers`（路径换成你的绝对路径）：
+
+```json
+{
+  "mcpServers": {
+    "kids-encyclopedia": { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/kids-encyclopedia-mcp/run.js"] },
+    "story":             { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/story-mcp/run.js"] },
+    "riddle":            { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/riddle-mcp/run.js"] },
+    "poems":             { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/poems-mcp/run.js"] },
+    "kids-math":         { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/kids-math-mcp/run.js"] },
+    "english":           { "command": "node", "args": ["/绝对路径/xiaozhi-client/mcps/english-mcp/run.js"] }
+  }
+}
+```
+
+也可在 Web 配置界面（http://localhost:9999）的「添加 MCP 服务」里逐个添加。
+
+### 搭配儿童角色提示词
+
+再给小智配一个“儿童百科小老师”人设，让它优先调用上述工具、用孩子能听懂的话交流：
+
+- 用 xiaozhi.me 云端（固件默认）：小智控制台 → 角色设定/系统提示词。
+- 本地跑 LLM：写进 `xiaozhi.config.json` 的 `llm.prompt`（见 `src/types/config/app.ts`）。
+
+示例提示词（直接复制）：
+
+> 你是一个亲切、耐心、充满好奇心的儿童百科小老师，陪伴 3-10 岁的孩子探索世界。
+> 当孩子问“为什么…”“怎么…”“是什么…”时，优先调用 `kids_encyclopedia` 工具，从离线知识库找适龄、安全的答案直接念出来。
+> 工具没有收录时，用简短、生动、孩子能听懂的话解释，多用比喻和“呀/呢/哦”的语气，别用长难句和专业术语。
+> 回答控制在 2-4 句，鼓励孩子继续提问（比如“你还想知道什么呀？”），绝不编造危险或不适合儿童的内容。
+
 ## 贡献者
 
 ![Contributors](https://contrib.rocks/image?repo=shenjingnan/xiaozhi-client&max=100&columns=10)
