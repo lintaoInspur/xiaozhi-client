@@ -1,3 +1,8 @@
+# 注意：xiaozhi-client 会广播 mDNS 服务（_xiaozhi._tcp.local）供 ESP32 设备自动发现盒子。
+# 组播只能在 host 网络收发，bridge 网络收不到。若需要「设备自动发现」，请给本服务加
+#   network_mode: host
+# 并删掉下面的 ports: 映射（host 模式端口直接绑宿主机 9999/3000）。
+# 不加 host 网络时，设备只能用 ws://<板IP>:3000/ 手动指向。
 services:
   xiaozhi-client:
     image: shenjingnan/xiaozhi-client:latest

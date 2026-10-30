@@ -6,6 +6,12 @@
 #   - 音乐语音触发 MCP(python) 跑在 client 容器内，POST 到 http://xiaozhi-client:3000/api/music
 #
 # 设备 WebSocket 指向本机 :3000；Web UI 在 :9999。
+#
+# ⚠️ 设备自动发现（mDNS，_xiaozhi._tcp.local）需要 xiaozhi-client 用 host 网络：
+#   组播只在 host 网络收发，bridge 收不到。要用「设备自动发现」，需给 xiaozhi-client 加
+#   network_mode: host（同时删掉它的 ports: 映射），并把 SEARXNG_URL / MUSIC_SERVICE_URL
+#   改成 http://localhost:8080 / http://localhost:8800，再给 music-service 把 expose 改成
+#   ports: "8800:8800"。否则设备只能用 ws://<板IP>:3000/ 手动指向。
 
 networks:
   xiaozhi:

@@ -53,6 +53,25 @@ docker compose -f docker/docker-compose.source.yml up -d --build
 >   xiaozhi-client:source
 > ```
 
+> ⚠️ **设备自动发现（mDNS / 零配网）必须用 `--network host`**
+>
+> `xiaozhi-client` 会向局域网广播 `_xiaozhi._tcp.local` 服务，ESP32 设备靠 **mDNS 组播**自动发现盒子（无需手动填 WebSocket 地址）。
+> **组播只能在 host 网络命名空间内收发**，容器默认的 `bridge` 网络收不到宿主机网卡的组播流量，因此：
+> 1. **必须**给 `xiaozhi-client` 加 `--network host`；
+> 2. `network_mode: host` 与 `ports:` 映射互斥——**用了 host 网络就要去掉 `-p`**（端口直接绑到宿主机的 9999 / 3000）。
+>
+> 即上面分步命令改成：
+> ```bash
+> docker run -d --name xiaozhi-client --network host \
+>   -e NODE_ENV=production -e XIAOZHI_WORKSPACE=/workspaces \
+>   -e XIAOZHI_CONTAINER=true -e XIAOZHI_CONFIG_DIR=/workspaces \
+>   -v ~/xiaozhi-client:/workspaces --restart unless-stopped \
+>   xiaozhi-client:source
+> # 注意：没有 -p，9999 / 3000 直接暴露在宿主机上
+> ```
+>
+> 若仍用 bridge 网络（不加 `--network host`），设备**无法自动发现**盒子，只能手动把设备 WebSocket 指向 `ws://<板IP>:3000/`。
+
 ### 4. 访问 Web UI
 
 打开浏览器：

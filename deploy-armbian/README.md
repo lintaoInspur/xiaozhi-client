@@ -28,6 +28,14 @@
 
 三服务都在 Docker 网络 `xiaozhi` 内，**用容器名互访**。`localhost` 在容器内指向容器自己，所以 client 配置里一律写 `http://searxng:8080`、`http://music-service:8800`、`http://xiaozhi-client:3000`，**不要写 localhost**。
 
+> ⚠️ **设备自动发现（mDNS）需要 xiaozhi-client 用 host 网络**
+> client 通过 mDNS 组播广播 `_xiaozhi._tcp.local`，ESP32 设备据此**自动发现**盒子。组播只在「host 网络」下能收发，bridge 网络收不到。
+> 但本编排里 client 靠「bridge + 容器名」访问 `searxng` / `music-service`。若要把 client 改成 `--network host` 以启用设备自动发现，需同步改三处：
+> 1. 去掉 client 的 `ports:` 映射（host 模式直接绑宿主机 9999 / 3000）；
+> 2. 把 `SEARXNG_URL` / `MUSIC_SERVICE_URL` 从 `http://searxng:8080` / `http://music-service:8800` 改成 `http://localhost:8080` / `http://localhost:8800`；
+> 3. 给 `searxng` 保留 `8080:8080` 映射、给 `music-service` 把 `expose` 改成 `ports: "8800:8800"`，让 host 网络下的 client 能经宿主机访问到它们。
+> 若暂时不切 host 网络，设备只能用 `ws://<板IP>:3000/` **手动指向**，无法自动发现。
+
 ---
 
 ## 一、准备工作（仅一次）
