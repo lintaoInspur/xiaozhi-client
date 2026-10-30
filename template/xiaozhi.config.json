@@ -42,5 +42,11 @@
     "connectionTimeout": 30000,
     "autoReconnect": true
   },
-  "webUI": { "port": 9999, "autoRestart": true }
+  "webUI": { "port": 9999, "autoRestart": true },
+  "ota": {
+    "firmwareVersion": "",
+    "firmwareUrl": "",
+    "firmwarePath": "",
+    "forceUpdate": false
+  }
 }

@@ -71,6 +71,29 @@ export interface MCPServerToolsConfig {
 }
 
 /**
+ * OTA 固件下发配置
+ *
+ * 配置后，局域网内通过 mDNS 自动发现的 ESP32 设备会收到此处指定的固件信息，
+ * 从而实现「免改设备 ota_url」的自动 OTA 升级（设备重启即检查）。
+ */
+export interface OTAConfig {
+  /** 固件版本号，必须高于设备当前版本才会触发升级 */
+  firmwareVersion?: string;
+  /**
+   * 固件下载地址（绝对 URL）。留空则使用本机托管的 /xiaozhi/firmware.bin。
+   * 例如可指向独立的 ota-server，或任意可访问的 http(s) 地址。
+   */
+  firmwareUrl?: string;
+  /**
+   * 本机固件文件路径（如 /workspaces/xiaozhi.bin）。
+   * 当 firmwareUrl 留空时，由盒子直接从该路径提供固件下载。
+   */
+  firmwarePath?: string;
+  /** 是否强制更新（无视版本号差异） */
+  forceUpdate?: boolean;
+}
+
+/**
  * 应用主配置接口
  */
 export interface AppConfig {
@@ -89,6 +112,8 @@ export interface AppConfig {
   llm?: LLMConfig;
   /** 工具调用日志配置 */
   toolCallLog?: ToolCallLogConfig;
+  /** OTA 固件下发配置（局域网自动 OTA） */
+  ota?: OTAConfig;
 }
 
 /**

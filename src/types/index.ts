@@ -43,6 +43,7 @@ export type {
   StreamableHTTPMCPServerConfig,
   // 应用主配置
   AppConfig,
+  OTAConfig,
   ConnectionConfig,
   // 子系统配置
   ASRConfig,

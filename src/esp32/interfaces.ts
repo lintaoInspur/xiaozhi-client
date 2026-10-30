@@ -3,7 +3,7 @@
  * 定义日志、配置提供者、设备连接等抽象接口，实现解耦
  */
 
-import type { ASRConfig, LLMConfig, TTSConfig } from "@/types";
+import type { ASRConfig, LLMConfig, OTAConfig, TTSConfig } from "@/types";
 import type { ESP32WSMessage } from "./types.js";
 
 /**
@@ -41,6 +41,11 @@ export interface IESP32ConfigProvider {
   getLLMConfig(): LLMConfig | null;
   /** 检查 LLM 配置是否有效 */
   isLLMConfigValid(): boolean;
+  /**
+   * 获取 OTA 固件下发配置（可选）
+   * 返回 null 或省略时，设备将使用默认 OTA 行为（不下发固件）。
+   */
+  getOTAConfig?(): OTAConfig | null;
 }
 
 /**

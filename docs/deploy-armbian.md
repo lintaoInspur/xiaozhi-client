@@ -72,6 +72,19 @@ docker compose -f docker/docker-compose.source.yml up -d --build
 >
 > 若仍用 bridge 网络（不加 `--network host`），设备**无法自动发现**盒子，只能手动把设备 WebSocket 指向 `ws://<板IP>:3000/`。
 
+> **想让设备自动 OTA 升级？** 在 `xiaozhi.config.json` 增加 `ota` 段即可。盒子会通过 mDNS 发现的设备自动下发固件，**无需改设备 `ota_url`**（设备重启即检查，版本更高则自动下载升级）：
+> ```json
+> "ota": {
+>   "firmwareVersion": "1.5.0",              // 必须高于设备当前版本才会升级
+>   "firmwareUrl": "",                        // 留空则使用本机托管
+>   "firmwarePath": "/workspaces/xiaozhi.bin", // 盒子直接从此路径提供固件下载
+>   "forceUpdate": false
+> }
+> ```
+> - `firmwarePath` 指向盒子上的 `xiaozhi.bin`，盒子以 `GET /xiaozhi/firmware.bin` 直接下发；
+> - 也可用 `firmwareUrl` 指向任意 http(s) 地址（如独立 ota-server）；
+> - 配置后热生效，无需重启盒子服务。
+
 ### 4. 访问 Web UI
 
 打开浏览器：

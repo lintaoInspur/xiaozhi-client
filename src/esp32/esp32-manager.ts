@@ -38,6 +38,8 @@ export interface ESP32DeviceManagerOptions {
   firmwareVersion?: string;
   /** 固件下载 URL（可选，用于 OTA 响应） */
   firmwareUrl?: string;
+  /** 本机固件文件路径（可选，用于盒子直接下发固件） */
+  firmwarePath?: string;
   /** 是否强制更新固件（可选） */
   forceUpdate?: boolean;
 }
@@ -71,12 +73,11 @@ export class ESP32DeviceManager {
   private ttsService: TTSService;
 
   /** 配置选项 */
-  private options: Required<
-    Pick<
-      ESP32DeviceManagerOptions,
-      "firmwareVersion" | "firmwareUrl" | "forceUpdate"
-    >
-  > & {
+  private options: {
+    firmwareVersion?: string;
+    firmwareUrl?: string;
+    firmwarePath?: string;
+    forceUpdate?: boolean;
     buildWebSocketUrl: (host: string) => string;
     logger: ILogger;
     configProvider?: IESP32ConfigProvider;
@@ -88,9 +89,10 @@ export class ESP32DeviceManager {
    */
   constructor(options: ESP32DeviceManagerOptions = {}) {
     this.options = {
-      firmwareVersion: options.firmwareVersion ?? "2.2.2",
-      firmwareUrl: options.firmwareUrl ?? "",
-      forceUpdate: options.forceUpdate ?? false,
+      firmwareVersion: options.firmwareVersion,
+      firmwareUrl: options.firmwareUrl,
+      firmwarePath: options.firmwarePath,
+      forceUpdate: options.forceUpdate,
       buildWebSocketUrl:
         options.buildWebSocketUrl ?? ((host: string) => `ws://${host}/ws`),
       logger: options.logger ?? noopLogger,
@@ -107,6 +109,42 @@ export class ESP32DeviceManager {
     this.asrService = this.createASRService();
     this.ttsService = this.createTTSService();
     this.setupTTSGetConnection();
+  }
+
+  /**
+   * 解析 OTA 固件配置（支持热更新：每次请求时从 configProvider 读取）
+   *
+   * 优先级：构造参数 > 配置文件(OTAConfig) > 默认值
+   * 当 firmwareUrl 与 firmwarePath 均为空时，不下发固件（保持原默认行为）。
+   * 当 firmwareUrl 为空但 firmwarePath 有值时，固件下载地址回退为
+   * 本机托管的 GET /xiaozhi/firmware.bin（由盒子直接下发）。
+   *
+   * @param host - 请求的 Host 头（IP:PORT），用于拼接本机固件下载地址
+   */
+  private resolveOTA(host?: string): {
+    version: string;
+    url: string;
+    path: string;
+    force: boolean;
+  } {
+    const cfg = this.options.configProvider?.getOTAConfig?.() || {};
+    const version =
+      this.options.firmwareVersion ?? cfg.firmwareVersion ?? "2.2.2";
+    const path = this.options.firmwarePath ?? cfg.firmwarePath ?? "";
+    const url =
+      this.options.firmwareUrl ??
+      cfg.firmwareUrl ??
+      (path ? `http://${host}/xiaozhi/firmware.bin` : "");
+    const force = this.options.forceUpdate ?? cfg.forceUpdate ?? false;
+    return { version, url, path, force };
+  }
+
+  /**
+   * 获取本机固件文件路径（用于 GET /xiaozhi/firmware.bin 直接下发）
+   * @returns 配置的文件路径，未配置则返回空字符串
+   */
+  public getFirmwarePath(): string {
+    return this.resolveOTA().path;
   }
 
   /**
@@ -310,6 +348,9 @@ export class ESP32DeviceManager {
     // 使用自定义或默认的 URL 构建方式
     const wsUrl = this.options.buildWebSocketUrl(host);
 
+    // 解析 OTA 固件配置（版本/下载地址/强制更新）
+    const ota = this.resolveOTA(host);
+
     this.options.logger.info(
       `返回WebSocket配置: deviceId=${deviceId}, clientId=${clientId}, wsUrl=${wsUrl}`
     );
@@ -327,9 +368,9 @@ export class ESP32DeviceManager {
         timezoneOffset: new Date().getTimezoneOffset() * -60 * 1000,
       },
       firmware: {
-        version: this.options.firmwareVersion,
-        url: this.options.firmwareUrl,
-        force: this.options.forceUpdate,
+        version: ota.version,
+        url: ota.url,
+        force: ota.force,
       },
       // 音频参数：告知硬件端 TTS 下发和播放使用的采样率
       audioParams: {

@@ -35,6 +35,17 @@
 > 2. 把 `SEARXNG_URL` / `MUSIC_SERVICE_URL` 从 `http://searxng:8080` / `http://music-service:8800` 改成 `http://localhost:8080` / `http://localhost:8800`；
 > 3. 给 `searxng` 保留 `8080:8080` 映射、给 `music-service` 把 `expose` 改成 `ports: "8800:8800"`，让 host 网络下的 client 能经宿主机访问到它们。
 > 若暂时不切 host 网络，设备只能用 `ws://<板IP>:3000/` **手动指向**，无法自动发现。
+>
+> **想让设备自动 OTA 升级？** 在 `xiaozhi.config.json` 增加 `ota` 段，盒子会通过 mDNS 发现的设备自动下发固件（无需改设备 `ota_url`，重启即检查）：
+> ```json
+> "ota": {
+>   "firmwareVersion": "1.5.0",
+>   "firmwareUrl": "",
+>   "firmwarePath": "/workspaces/xiaozhi.bin",
+>   "forceUpdate": false
+> }
+> ```
+> `firmwarePath` 指向盒子上固件，盒子以 `GET /xiaozhi/firmware.bin` 直接下发；或把 `firmwareUrl` 指向任意 http(s) 地址（如独立 ota-server）。
 
 ---
 

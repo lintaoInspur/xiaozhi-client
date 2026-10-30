@@ -49,6 +49,7 @@ import type {
   MCPServerToolsConfig,
   MCPToolConfig,
   ModelScopeConfig,
+  OTAConfig,
   PlatformConfig,
   TTSConfig,
   ToolCallLogConfig,
@@ -1544,6 +1545,14 @@ export class ConfigManager {
   public getLLMConfig(): LLMConfig | null {
     const config = this.getConfig();
     return config.llm || null;
+  }
+
+  /**
+   * 获取 OTA 固件下发配置（供 ESP32 设备自动 OTA 使用）
+   */
+  public getOTAConfig(): Readonly<OTAConfig> {
+    const config = this.getConfig();
+    return config.ota || {};
   }
 
   /**

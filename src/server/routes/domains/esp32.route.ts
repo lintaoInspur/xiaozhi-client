@@ -55,6 +55,13 @@ export const esp32Routes: RouteDefinition[] = [
     handler: createESP32Handler((handler, c) => handler.handleOTA(c)),
   },
 
+  // 本机固件下发（当 ota.firmwarePath 配置时，由盒子直接提供 xiaozhi.bin）
+  {
+    method: "GET",
+    path: "/xiaozhi/firmware.bin",
+    handler: createESP32Handler((handler, c) => handler.handleFirmware(c)),
+  },
+
   // WebSocket端点（由WebServer直接处理，这里仅作为占位符）
   {
     method: "GET",

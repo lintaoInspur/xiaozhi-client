@@ -18,6 +18,8 @@ export type {
   StreamableHTTPMCPServerConfig,
   // 应用主配置
   AppConfig,
+  // OTA 固件下发配置
+  OTAConfig,
   // 子系统配置
   ASRConfig,
   CozePlatformConfig,

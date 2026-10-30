@@ -5,6 +5,7 @@
  * 作为薄适配层，将 Hono 请求委托给 ESP32DeviceManager 处理
  */
 
+import { readFileSync } from "node:fs";
 import type { ESP32DeviceManager, ESP32DeviceReport } from "@/esp32";
 import { ESP32ErrorCode } from "@/esp32";
 import type { Context } from "hono";
@@ -105,6 +106,35 @@ export class ESP32Handler extends BaseHandler {
       return c.json(response);
     } catch (error) {
       return this.handleError(c, error, "处理OTA请求");
+    }
+  }
+
+  /**
+   * 处理本地固件下发请求
+   * GET /xiaozhi/firmware.bin
+   *
+   * 当 xiaozhi.config.json 中配置了 ota.firmwarePath 时，盒子直接从该路径
+   * 读取 xiaozhi.bin 提供给设备下载，实现本机 OTA 托管（无需独立 ota-server）。
+   */
+  async handleFirmware(c: Context<AppContext>): Promise<Response> {
+    const logger = c.get("logger");
+    const firmwarePath = this.esp32Manager.getFirmwarePath();
+
+    if (!firmwarePath) {
+      return c.text("未配置本地固件路径 (ota.firmwarePath)", 404);
+    }
+
+    try {
+      const data = readFileSync(firmwarePath);
+      logger.debug(`下发本地固件: ${firmwarePath} (${data.length} bytes)`);
+      return c.body(data, 200, {
+        "Content-Type": "application/octet-stream",
+        "Content-Length": String(data.length),
+        "Content-Disposition": 'attachment; filename="xiaozhi.bin"',
+      });
+    } catch (error) {
+      logger.error(`读取本地固件失败: ${firmwarePath}`, { error });
+      return c.text("本地固件文件不存在或无法读取", 404);
     }
   }
 }

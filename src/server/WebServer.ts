@@ -25,7 +25,6 @@ import { serve } from "@hono/node-server";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import type { Hono } from "hono";
 import { WebSocketServer } from "ws";
-import { startXiaozhiMdnsAdvertiser, stopXiaozhiMdnsAdvertiser } from "./mdns-advertiser.js";
 import type WebSocket from "ws";
 import { normalizeServiceConfig } from "../config/index.js";
 import { configManager } from "../config/index.js";
@@ -58,6 +57,10 @@ import {
 import { MCPServiceManager } from "./lib/mcp";
 import type { EnhancedToolInfo } from "./lib/mcp/types.js";
 import { ensureToolJSONSchema } from "./lib/mcp/types.js";
+import {
+  startXiaozhiMdnsAdvertiser,
+  stopXiaozhiMdnsAdvertiser,
+} from "./mdns-advertiser.js";
 import {
   corsMiddleware,
   endpointManagerMiddleware,
@@ -189,6 +192,7 @@ export class WebServer {
       getTTSConfig: () => configManager.getTTSConfig(),
       getLLMConfig: () => configManager.getLLMConfig(),
       isLLMConfigValid: () => configManager.isLLMConfigValid(),
+      getOTAConfig: () => configManager.getOTAConfig(),
     };
 
     // 创建 ESP32 设备管理器（使用新包）
