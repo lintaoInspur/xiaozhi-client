@@ -48,6 +48,10 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
+# 构建少儿离线 MCP 子项目（kids-encyclopedia / story / riddle / poems / kids-math / english）
+# 产物为各包 dist/run.js，供 xiaozhi.config.json 以容器内路径 /app/mcps/<name>/dist/run.js 拉起
+RUN pnpm --filter '@xiaozhi-client/*-mcp' build
+
 ENV NODE_ENV=production
 ENV XIAOZHI_WORKSPACE=/workspaces
 ENV XIAOZHI_CONTAINER=true
